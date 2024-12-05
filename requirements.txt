@@ -1,0 +1,11 @@
+langchain_experimental
+langchain_community
+streamlit
+pandas
+langchain
+matplotlib
+seaborn
+openai
+scipy
+scikit-learn
+python-dotenv
