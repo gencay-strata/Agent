@@ -70,10 +70,13 @@ if 'df' in st.session_state and st.session_state.df is not None:
 
     st.write("**Data Information:**")
     st.write("This provides information about the data types and non-null values in each column.")
-    buffer = io.StringIO()
-    df.info(buf=buffer)
-    s = buffer.getvalue()
-    st.text(s)
+
+    df_info = pd.DataFrame({
+        'Column': df.columns,
+        'Non-Null Count': df.notnull().sum().values,
+        'Data Type': df.dtypes.values
+    })
+    st.dataframe(df_info)
 
     st.write(f"**Data Shape:** {df.shape}")
 
@@ -119,7 +122,20 @@ if 'df' in st.session_state and st.session_state.df is not None:
         st.write("No duplicate records found in the dataset.")
 
     # Convert all string values to lowercase and remove special characters
-    object_cols = df_clean.select_dtypes(include=['object']).columns
+    object_cols = df_clean.select_dtypes(include=['object']).columns.tolist()
+    date_cols = []
+
+    # Attempt to parse date columns
+    for col in object_cols:
+        try:
+            pd.to_datetime(df_clean[col])
+            date_cols.append(col)
+        except (ValueError, TypeError):
+            continue
+
+    # Exclude date columns from object_cols
+    text_cols = [col for col in object_cols if col not in date_cols]
+    
     if len(object_cols) > 0:
         for col in object_cols:
             df_clean[col] = df_clean[col].str.lower().str.replace(r'[^\w\s]', '', regex=True)
@@ -129,7 +145,8 @@ if 'df' in st.session_state and st.session_state.df is not None:
         st.write("No string columns found to convert to lowercase or remove special characters.")
 
     # Encode categorical variables
-    categorical_cols = df_clean.select_dtypes(include=['object']).columns
+    # Exclude date columns from encoding
+    categorical_cols = [col for col in text_cols if df_clean[col].nunique() < 100]  # Limit to columns with less than 100 unique values to prevent explosion
     if len(categorical_cols) > 0:
         df_clean = pd.get_dummies(df_clean, columns=categorical_cols)
         st.write("Categorical data converted to numerical values.")
