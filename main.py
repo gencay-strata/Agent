@@ -125,18 +125,6 @@ if 'df' in st.session_state and st.session_state.df is not None:
     object_cols = df_clean.select_dtypes(include=['object']).columns.tolist()
     date_cols = []
 
-    # Attempt to parse date columns
-    for col in object_cols:
-        try:
-            pd.to_datetime(df_clean[col])
-            date_cols.append(col)
-        except (ValueError, TypeError):
-            continue
-    
-    # Convert date columns to datetime
-    for col in date_cols:
-        df_clean[col] = pd.to_datetime(df_clean[col], errors='coerce')
-
     # Exclude date columns from object_cols
     text_cols = [col for col in object_cols if col not in date_cols]
     
