@@ -106,7 +106,7 @@ if 'df' in st.session_state and st.session_state.df is not None:
                 df_clean[col].fillna(df_clean[col].mean(), inplace=True)
             st.write("Missing values in numerical columns have been imputed with the mean.")
         else:  # Small dataset
-            df_clean.fillna(method='ffill', inplace=True)
+            df_clean.ffill(inplace=True)
             st.write("Missing values have been forward-filled in the dataset.")
         st.write("Missing values handled successfully.")
     else:
@@ -143,7 +143,8 @@ if 'df' in st.session_state and st.session_state.df is not None:
     # Convert all string values to lowercase and remove special characters
     if len(text_cols) > 0:
         for col in text_cols:
-            df_clean[col] = df_clean[col].astype(str).str.lower().str.replace(r'[^\w\s]', '', regex=True)
+            df_clean[col] = df_clean[col].fillna('').astype(str).str.lower().str.replace(r'[^\w\s]', '', regex=True)
+
         st.write("All string values converted to lowercase.")
         st.write("Special characters removed from the dataset.")
     else:
