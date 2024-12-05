@@ -121,10 +121,38 @@ if 'df' in st.session_state and st.session_state.df is not None:
     else:
         st.write("No duplicate records found in the dataset.")
 
-    # Convert all string values to lowercase and remove special characters
     object_cols = df_clean.select_dtypes(include=['object']).columns.tolist()
     date_cols = []
-
+    text_cols = []
+    
+    # Define multiple date formats to check
+    date_formats = ['%Y-%m-%d', '%Y-%m-%d %H:%M:%S']
+    
+    # Attempt to parse object columns
+    for col in object_cols:
+        is_date = False
+        is_numeric = False
+    
+        # Check if the column can be parsed as a date
+        for date_format in date_formats:
+            try:
+                pd.to_datetime(df_clean[col], format=date_format)
+                date_cols.append(col)
+                is_date = True
+                break
+            except ValueError:
+                continue
+    
+        # If not a date, check if it's numeric
+        if not is_date:
+            try:
+                pd.to_numeric(df_clean[col])  # Check if column can be converted to numeric
+                # Skip adding it to text_cols as it's numeric
+                continue  # Move to the next column
+            except ValueError:
+                # If not numeric, classify as text
+                text_cols.append(col)
+    
     # Exclude date columns from object_cols
     text_cols = [col for col in object_cols if col not in date_cols]
     
@@ -132,13 +160,12 @@ if 'df' in st.session_state and st.session_state.df is not None:
     if len(text_cols) > 0:
         for col in text_cols:
             df_clean[col] = df_clean[col].fillna('').astype(str).str.lower().str.replace(r'[^\w\s]', '', regex=True)
-
+    
         st.write("All string values converted to lowercase.")
         st.write("Special characters removed from the dataset.")
     else:
         st.write("No string columns found to convert to lowercase or remove special characters.")
-
-
+    
     # Encode categorical variables
     # Exclude date columns from encoding
     categorical_cols = [col for col in text_cols if df_clean[col].nunique() < 100]  # Limit to columns with less than 100 unique values to prevent explosion
@@ -147,7 +174,7 @@ if 'df' in st.session_state and st.session_state.df is not None:
         st.write("Categorical data converted to numerical values.")
     else:
         st.write("No categorical variables found for encoding.")
-
+    
     # Store cleaned data in session state
     st.session_state.cleaned_data = df_clean
     st.write("Data cleaning is complete.")
