@@ -74,7 +74,7 @@ if 'df' in st.session_state and st.session_state.df is not None:
     df_info = pd.DataFrame({
         'Column': df.columns,
         'Non-Null Count': df.notnull().sum().values,
-        'Data Type': df.dtypes.values
+        'Data Type': df.dtypes.astype(str).values
     })
     st.dataframe(df_info)
 
@@ -132,6 +132,10 @@ if 'df' in st.session_state and st.session_state.df is not None:
             date_cols.append(col)
         except (ValueError, TypeError):
             continue
+    
+    # Convert date columns to datetime
+    for col in date_cols:
+        df_clean[col] = pd.to_datetime(df_clean[col], errors='coerce')
 
     # Exclude date columns from object_cols
     text_cols = [col for col in object_cols if col not in date_cols]
