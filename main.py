@@ -140,13 +140,15 @@ if 'df' in st.session_state and st.session_state.df is not None:
     # Exclude date columns from object_cols
     text_cols = [col for col in object_cols if col not in date_cols]
     
-    if len(object_cols) > 0:
-        for col in object_cols:
-            df_clean[col] = df_clean[col].str.lower().str.replace(r'[^\w\s]', '', regex=True)
+    # Convert all string values to lowercase and remove special characters
+    if len(text_cols) > 0:
+        for col in text_cols:
+            df_clean[col] = df_clean[col].astype(str).str.lower().str.replace(r'[^\w\s]', '', regex=True)
         st.write("All string values converted to lowercase.")
         st.write("Special characters removed from the dataset.")
     else:
         st.write("No string columns found to convert to lowercase or remove special characters.")
+
 
     # Encode categorical variables
     # Exclude date columns from encoding
