@@ -62,7 +62,11 @@ if 'df' in st.session_state and st.session_state.df is not None:
     st.dataframe(df.tail())
 
     st.write("Here's a random sample of your data:")
-    st.dataframe(df.sample(5))
+
+    if len(df) < 5:
+        st.dataframe(df.sample(len(df)))  
+    else:
+        st.dataframe(df.sample(5))  
 
     st.write("Next, we'll look at a statistical summary of your dataset. This will give us a sense of the dataset's central tendency, dispersion, and shape.")
     st.write("**Statistical Summary:**")
