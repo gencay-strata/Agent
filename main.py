@@ -157,9 +157,6 @@ if 'df' in st.session_state and st.session_state.df is not None:
                 # If not numeric, classify as text
                 text_cols.append(col)
     
-    # Exclude date columns from object_cols
-    text_cols = [col for col in object_cols if col not in date_cols]
-    
     # Convert all string values to lowercase and remove special characters
     if len(text_cols) > 0:
         for col in text_cols:
