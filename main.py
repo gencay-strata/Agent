@@ -18,12 +18,19 @@ st.write("Hello, 👋 I am your AI Agent and I am here to help you with your pro
 if 'df' not in st.session_state:
     st.session_state.df = None
 
-# File upload section
-uploaded_file = st.file_uploader(
+# Sidebar configuration
+sidebar = st.sidebar
+sidebar.header("Upload Your CSV")
+
+# File upload section in the sidebar
+uploaded_file = sidebar.file_uploader(
     "Choose a CSV file",
     type="csv",
     help="Upload a CSV file to analyze"
 )
+
+if uploaded_file is None:
+    sidebar.info("Upload a CSV file to begin.")
 
 if uploaded_file is not None:
     # Check file size
@@ -43,8 +50,9 @@ if uploaded_file is not None:
                 else:
                     st.session_state.df = df
                     st.success("File successfully uploaded! 🎉")
-                    st.write("### Preview of Your Data")
-                    st.dataframe(df.head())
+                    sidebar.subheader("Dataset Overview")
+                    sidebar.write(f"Rows: {df.shape[0]}, Columns: {df.shape[1]}")
+                    sidebar.dataframe(df.head())
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
